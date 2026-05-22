@@ -19,12 +19,17 @@ SKIP_PATTERNS = [
     r"GET replicas for key",     # debug output
     r"GET key=",                 # debug output
     r"Ring size after adding",   # startup noise
+    r"processed_requests_ size: 0",
 ]
 
 def should_ingest(line:str)->bool:
     for pattern in SKIP_PATTERNS:
         if re.search(pattern,line):
             return False
+    match = re.search(r"processed_requests_ size: (\d+)", line)
+    if match:
+        count = int(match.group(1))
+        return count > 10
     return True
 
 def tail_node(node:dict):
